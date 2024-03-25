@@ -9,7 +9,20 @@ body {
     display: flex;
     justify-content: space-between;
 }
-.navbar-brand {
-margin-right:50px;
+
+
+
+.carousel-inner .navbar-brand {
+    margin-right: 50px;
 }
 
+
+
+
+
+.carousel-inner .carousel-item img {
+    border: 1px solid black;
+    height: 800px; 
+    width: 100%; 
+    object-fit: cover; 
+}
