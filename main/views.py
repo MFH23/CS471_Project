@@ -1,7 +1,8 @@
 from django.shortcuts import render ,HttpResponse,redirect
-from .models import Contact
+from .models import Contact , Appointment, Doctor, Patient
 from django.contrib.auth import authenticate, login, logout
-from .forms import SignupForm, LoginForm
+from .forms import SignupForm, LoginForm,AppointmentForm
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -38,14 +39,11 @@ def contact(request):
 
     return render(request, 'main/contact.html')
 
-def feedback(request):
-    pass
 
 def services(request):
     pass
 
-def appointment(request):
-    pass
+
 
 
 # signup page
@@ -78,3 +76,22 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return render(request, 'main/home.html')
+
+
+############################################################################## 
+@login_required
+def make_appointment(request):
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.patient = Patient.objects.get(user=request.user)
+            appointment.save()
+            return redirect('appointment_success')
+    else:
+        form = AppointmentForm()
+    
+    return render(request, 'main/make_appointment.html', {'form': form})
+
+def appointment_success(request):
+    return render(request, 'main/appointment_success.html')
