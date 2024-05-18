@@ -1,4 +1,4 @@
-from django.shortcuts import render ,HttpResponse,redirect
+from django.shortcuts import render ,HttpResponse,redirect,get_object_or_404 # the last import it is an error handling if the object is not found
 from .models import Contact , Appointment, Doctor, Patient
 from django.contrib.auth import authenticate, login, logout
 from .forms import SignupForm, LoginForm,AppointmentForm
@@ -79,6 +79,7 @@ def user_logout(request):
 
 
 ############################################################################## 
+'''
 @login_required
 def make_appointment(request):
     if request.method == 'POST':
@@ -94,4 +95,47 @@ def make_appointment(request):
     return render(request, 'main/make_appointment.html', {'form': form})
 
 def appointment_success(request):
-    return render(request, 'main/appointment_success.html')
+    return render(request, 'main/appointment_success.html')'''
+
+@login_required
+def create_appointment(request):
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.patient = Patient.objects.get(user=request.user)
+            appointment.save()
+            return redirect('appointment_list')
+    else:
+        form = AppointmentForm()
+    return render(request, 'main/appointment_create.html', {'form': form})
+
+@login_required
+def update_appointment(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST, instance=appointment)
+        if form.is_valid():
+            form.save()
+            return redirect('appointment_list')
+    else:
+        form = AppointmentForm(instance=appointment)
+    return render(request, 'main/appointment_update.html', {'form': form, 'appointment': appointment})
+
+@login_required
+def appointment_detail(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    return render(request, 'main/appointment_detail.html', {'appointment': appointment})
+
+@login_required
+def appointment_list(request):
+    appointments = Appointment.objects.filter(patient__user=request.user)
+    return render(request, 'main/appointment_list.html', {'appointments': appointments})
+
+@login_required
+def delete_appointment(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == 'POST':
+        appointment.delete()
+        return redirect('appointment_list')
+    return render(request, 'main/appointment_confirm_delete.html', {'appointment': appointment})

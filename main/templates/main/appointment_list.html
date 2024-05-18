@@ -1,0 +1,24 @@
+{% extends "main/layouts/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointments List</title>
+</head>
+<body>
+    <h1>Appointments List</h1>
+    <ul>
+        {% for appointment in appointments %}
+            <li>
+                <a href="{% url 'appointment_detail' appointment.pk %}">
+                    {{ appointment.appointment_date }} - {{ appointment.doctor }}
+                </a>
+            </li>
+        {% empty %}
+            <li>No appointments yet.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'create_appointment' %}">Create New Appointment</a>
+</body>
+</html>
+{% endblock content %}
